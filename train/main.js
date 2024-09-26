@@ -22,7 +22,8 @@ const world = worldInfo
 const viewport = new Viewport(carCanvas, world.zoom, world.offset);
 const miniMap = new MiniMap(miniMapCanvas, world.graph, 300);
 
-const N=19;
+const N=90;
+const alpha = .4
 const cars=generateCars(N);
 let bestCar=cars[0];
 
@@ -36,7 +37,7 @@ if(localStorage.getItem("bestBrain")){
             localStorage.getItem("bestBrain"));
 
         if(i!=0){
-            NeuralNetwork.mutate(cars[i].brain,0.3);
+            NeuralNetwork.mutate(cars[i].brain,alpha);
         }
     }
 }
