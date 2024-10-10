@@ -23,7 +23,7 @@ const viewport = new Viewport(carCanvas, world.zoom, world.offset);
 const miniMap = new MiniMap(miniMapCanvas, world.graph, 300);
 
 const N=200;
-const alpha = .6
+const alpha = .9
 const cars=generateCars(N);
 let bestCar=cars[0];
 
