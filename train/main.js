@@ -73,7 +73,6 @@ function generateCars(N){
       ? startPoints[0].directionVector
       : new Point(0, -1);
     const startAngle = - angle(dir) + Math.PI / 2;
-    // const occupancy = startPoints[0].occupancy
     const occupancy = 1 
     
     const cars=[];

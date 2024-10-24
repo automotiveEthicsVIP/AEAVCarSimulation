@@ -1,8 +1,5 @@
 const carCanvas=document.getElementById("carCanvas");
-carCanvas.width=window.innerWidth - 330;
-const miniMapCanvas=document.getElementById("miniMapCanvas");
-miniMapCanvas.width=300;
-miniMapCanvas.height=300;
+carCanvas.width=window.innerWidth;
 
 carCanvas.height=window.innerHeight;
 
@@ -16,7 +13,6 @@ const world = worldInfo
    : new World(new Graph());
 
 const viewport = new Viewport(carCanvas, world.zoom, world.offset);
-const miniMap = new MiniMap(miniMapCanvas, world.graph, 300);
 
 const cars=generateVehicles();
 const stopSigns = world.markings.filter(m => m instanceof Stop);
@@ -99,13 +95,36 @@ function stopCar(car, stopSigns) {
 }
     
 
+function printHits(car, crossings) {
+    const carBox = car.getBoundingBox();
+    for (let i = 0; i < crossings.length; i++) {
+        const crossingCenter = crossings[i].center;
+        const crossingSize = 50;
+        const crossingBox = {
+            left: crossingCenter.x - crossingSize / 2,
+            right: crossingCenter.x + crossingSize / 2,
+            top: crossingCenter.y - crossingSize / 2,
+            bottom: crossingCenter.y + crossingSize / 2
+        };
+        
+        if (!(carBox.left > crossingBox.right || 
+              carBox.right < crossingBox.left || 
+              carBox.top > crossingBox.bottom || 
+              carBox.bottom < crossingBox.top)) {
+            console.log("Hit " + crossings[i].peopleCount + " people")
+        }
+    }
+}
+    
+
 function animate(time){
     for(let i=0;i<traffic.length;i++){
         traffic[i].update(roadBorders,[]);
     }
     for(let i=0;i<cars.length;i++){
-        cars[i].update(roadBorders,traffic);
+        cars[i].update(roadBorders,traffic, crossings);
         stopCar(cars[i], stopSigns);
+        printHits(cars[i], crossings);
     }
     
     world.cars = cars;
@@ -114,7 +133,6 @@ function animate(time){
     viewport.reset();
     const viewPoint = scale(viewport.getOffset(), -1);
     world.draw(carCtx, viewPoint, false);
-    miniMap.update(viewPoint);
 
     for(let i=0;i<traffic.length;i++){
         traffic[i].draw(carCtx);
