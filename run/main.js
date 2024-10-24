@@ -30,6 +30,7 @@ if(localStorage.getItem("bestBrain")){
 }
 
 const traffic=[];
+const crossings = world.markings.filter(m => m instanceof Crossing);
 const roadBorders = world.roadBorders.map((s) => [s.p1, s.p2]);
 
 animate();
@@ -91,6 +92,8 @@ function stopCar(car, stopSigns) {
               carBox.bottom < stopSignBox.top)) {
             car.speed = 0;
             car.acceleration = 0;
+            
+
         }
     }
 }
