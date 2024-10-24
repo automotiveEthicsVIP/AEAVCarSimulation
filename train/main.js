@@ -25,7 +25,7 @@ const miniMap = new MiniMap(miniMapCanvas, world.graph, 300);
 
 const trainingCarsSettings = JSON.parse(localStorage.getItem('trainingCar')) || {}
 
-const N = trainingCarsSettings.numberOfCars || 50;
+const N = trainingCarsSettings.numberOfCars || 50
 const alpha = trainingCarsSettings.alphaValue || .6;
 const cars=generateCars(N);
 let bestCar=cars[0];
