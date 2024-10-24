@@ -22,8 +22,11 @@ const world = worldInfo
 const viewport = new Viewport(carCanvas, world.zoom, world.offset);
 const miniMap = new MiniMap(miniMapCanvas, world.graph, 300);
 
-const N=200;
-const alpha = .6
+
+const trainingCarsSettings = JSON.parse(localStorage.getItem('trainingCar')) || {}
+
+const N = trainingCarsSettings.numberOfCars || 50;
+const alpha = trainingCarsSettings.alphaValue || .6;
 const cars=generateCars(N);
 let bestCar=cars[0];
 
@@ -97,7 +100,6 @@ function animate(time){
 
     world.cars = cars;
     world.bestCar = bestCar;
-
     viewport.offset.x = -bestCar.x;
     viewport.offset.y = -bestCar.y;
 

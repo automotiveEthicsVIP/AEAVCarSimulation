@@ -36,3 +36,8 @@ input[type="file"] {
    background-color: rgba(0, 0, 0, 0.7);
    padding: 5000px;
 }
+
+
+#controls{
+   min-width: 100px;
+   }
