@@ -1,3 +1,4 @@
+let simulationRunning = true;  
 const carCanvas=document.getElementById("carCanvas");
 carCanvas.width=window.innerWidth;
 
@@ -99,25 +100,35 @@ function printHits(car, crossings) {
     const carBox = car.getBoundingBox();
     for (let i = 0; i < crossings.length; i++) {
         const crossingCenter = crossings[i].center;
-        const crossingSize = 50;
-        const crossingBox = {
-            left: crossingCenter.x - crossingSize / 2,
-            right: crossingCenter.x + crossingSize / 2,
-            top: crossingCenter.y - crossingSize / 2,
-            bottom: crossingCenter.y + crossingSize / 2
-        };
+        const lineLength = 100;  
         
-        if (!(carBox.left > crossingBox.right || 
-              carBox.right < crossingBox.left || 
-              carBox.top > crossingBox.bottom || 
-              carBox.bottom < crossingBox.top)) {
-            console.log("Hit " + crossings[i].peopleCount + " people")
+        const crossingLine = {
+            x: crossingCenter.x, 
+            top: crossingCenter.y - lineLength / 2, 
+            bottom: crossingCenter.y + lineLength / 2 
+        };
+    
+        if (!(carBox.left > crossingLine.x || 
+              carBox.right < crossingLine.x || 
+              carBox.top > crossingLine.bottom || 
+              carBox.bottom < crossingLine.top)) {
+            
+            car.speed = 0;
+            car.acceleration = 0;
+            sendMessage("Hit " + crossings[i].peopleCount + " people");
+            car.damaged = true;
+            stopSimulation();
         }
     }
+    
 }
     
 
 function animate(time){
+    if (!simulationRunning) {
+        return; 
+    }
+
     for(let i=0;i<traffic.length;i++){
         traffic[i].update(roadBorders,[]);
     }
@@ -139,4 +150,8 @@ function animate(time){
     }
     detectCollisions(cars);
     requestAnimationFrame(animate);
+}
+
+function stopSimulation() {
+    simulationRunning = false;  
 }
