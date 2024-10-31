@@ -118,7 +118,6 @@ function stopCarAtParking(car, parkingSpots, carIndex) {
               carBox.bottom < parkingBox.top)) {
             car.speed = 0;
             car.acceleration = 0;
-            console.log("stooped")
 
         }
     }

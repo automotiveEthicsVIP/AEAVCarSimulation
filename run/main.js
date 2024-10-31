@@ -115,7 +115,7 @@ function hitCrossing(car, crossings) {
             
             car.speed = 0;
             car.acceleration = 0;
-            // sendMessage("Hit " + crossings[i].peopleCount + " people");
+            sendMessage("Hit " + crossings[i].peopleCount + " people");
             car.damaged = true;
             stopSimulation();
         }
