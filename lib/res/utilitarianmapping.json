@@ -1,0 +1,9 @@
+{
+    "utilitarian_weights": {
+        "human": 100,
+        "old_human": 80,
+        "animal": 40,
+        "car": 30,
+        "self_sacrifice": 1000
+    }
+}

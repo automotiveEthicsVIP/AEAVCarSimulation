@@ -26,7 +26,6 @@ if(localStorage.getItem("bestBrain")){
     }
 }
 
-const traffic=[];
 const crossings = world.markings.filter(m => m instanceof Crossing);
 const roadBorders = world.roadBorders.map((s) => [s.p1, s.p2]);
 
@@ -89,6 +88,7 @@ function stopCar(car, stopSigns) {
               carBox.bottom < stopSignBox.top)) {
             car.speed = 0;
             car.acceleration = 0;
+            car.damaged = true;
             
 
         }
@@ -96,7 +96,7 @@ function stopCar(car, stopSigns) {
 }
     
 
-function printHits(car, crossings) {
+function hitCrossing(car, crossings) {
     const carBox = car.getBoundingBox();
     for (let i = 0; i < crossings.length; i++) {
         const crossingCenter = crossings[i].center;
@@ -115,7 +115,7 @@ function printHits(car, crossings) {
             
             car.speed = 0;
             car.acceleration = 0;
-            sendMessage("Hit " + crossings[i].peopleCount + " people");
+            // sendMessage("Hit " + crossings[i].peopleCount + " people");
             car.damaged = true;
             stopSimulation();
         }
@@ -129,13 +129,10 @@ function animate(time){
         return; 
     }
 
-    for(let i=0;i<traffic.length;i++){
-        traffic[i].update(roadBorders,[]);
-    }
     for(let i=0;i<cars.length;i++){
-        cars[i].update(roadBorders,traffic, crossings);
+        cars[i].update(roadBorders, crossings);
         stopCar(cars[i], stopSigns);
-        printHits(cars[i], crossings);
+        hitCrossing(cars[i], crossings);
     }
     
     world.cars = cars;
@@ -145,9 +142,6 @@ function animate(time){
     const viewPoint = scale(viewport.getOffset(), -1);
     world.draw(carCtx, viewPoint, false);
 
-    for(let i=0;i<traffic.length;i++){
-        traffic[i].draw(carCtx);
-    }
     detectCollisions(cars);
     requestAnimationFrame(animate);
 }

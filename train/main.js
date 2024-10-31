@@ -1,17 +1,8 @@
 const carCanvas=document.getElementById("carCanvas");
-carCanvas.width=window.innerWidth - 330;
-const networkCanvas=document.getElementById("networkCanvas");
-networkCanvas.width=300;
-const miniMapCanvas=document.getElementById("miniMapCanvas");
-miniMapCanvas.width=300;
-miniMapCanvas.height=300;
-
+carCanvas.width=window.innerWidth-200;
 carCanvas.height=window.innerHeight;
-networkCanvas.height=window.innerHeight-300;
 
 const carCtx = carCanvas.getContext("2d");
-const networkCtx = networkCanvas.getContext("2d");
-
 
 const worldString = localStorage.getItem("world");
 const worldInfo = worldString ? JSON.parse(worldString) : null;
@@ -20,13 +11,14 @@ const world = worldInfo
    : new World(new Graph());
 
 const viewport = new Viewport(carCanvas, world.zoom, world.offset);
-const miniMap = new MiniMap(miniMapCanvas, world.graph, 300);
-
+// const miniMap = new MiniMap(miniMapCanvas, world.graph, 300);
 
 const trainingCarsSettings = JSON.parse(localStorage.getItem('trainingCar')) || {}
 
 const N = trainingCarsSettings.numberOfCars || 50
 const alpha = trainingCarsSettings.alphaValue || .6;
+const stopSigns = world.markings.filter(m => m instanceof Stop);
+const parkingSpots = world.markings.filter(m => m instanceof Parking);
 const cars=generateCars(N);
 let bestCar=cars[0];
 
@@ -45,7 +37,7 @@ if(localStorage.getItem("bestBrain")){
     }
 }
 
-const traffic=[];
+const crossings = world.markings.filter(m => m instanceof Crossing);
 const roadBorders = world.roadBorders.map((s) => [s.p1, s.p2]);
 
 animate();
@@ -84,14 +76,64 @@ function generateCars(N){
 }
 
     
+function stopCar(car, stopSigns) {
+    const carBox = car.getBoundingBox();
+    for (let i = 0; i < stopSigns.length; i++) {
+        const stopSignCenter = stopSigns[i].center;
+        const stopSignSize = 50;
+        const stopSignBox = {
+            left: stopSignCenter.x - stopSignSize / 2,
+            right: stopSignCenter.x + stopSignSize / 2,
+            top: stopSignCenter.y - stopSignSize / 2,
+            bottom: stopSignCenter.y + stopSignSize / 2
+        };
+        
+        if (!(carBox.left > stopSignBox.right || 
+              carBox.right < stopSignBox.left || 
+              carBox.top > stopSignBox.bottom || 
+              carBox.bottom < stopSignBox.top)) {
+            car.speed = 0;
+            car.acceleration = 0;
+            
+
+        }
+    }
+}
+
+function stopCarAtParking(car, parkingSpots, carIndex) {
+    const carBox = car.getBoundingBox();
+    for (let i = 0; i < parkingSpots.length; i++) {
+        const parkingCenter = parkingSpots[i].center;
+        const parkingSize = 50; 
+        const parkingBox = {
+            left: parkingCenter.x - parkingSize / 2,
+            right: parkingCenter.x + parkingSize / 2,
+            top: parkingCenter.y - parkingSize / 2,
+            bottom: parkingCenter.y + parkingSize / 2
+        };
+
+        if (!(carBox.left > parkingBox.right || 
+              carBox.right < parkingBox.left || 
+              carBox.top > parkingBox.bottom || 
+              carBox.bottom < parkingBox.top)) {
+            car.speed = 0;
+            car.acceleration = 0;
+            console.log("stooped")
+
+        }
+    }
+}
+    
 
 function animate(time){
-    for(let i=0;i<traffic.length;i++){
-        traffic[i].update(roadBorders,[]);
-    }
+   
     for(let i=0;i<cars.length;i++){
-        cars[i].update(roadBorders,traffic);
+        cars[i].update(roadBorders, crossings);
+        stopCar(cars[i], stopSigns);
+        stopCarAtParking(cars[i], parkingSpots, i); 
+
     }
+    
     bestCar=cars.find(
         c=>c.fittness==Math.max(
             ...cars.map(c=>c.fittness)
@@ -105,14 +147,9 @@ function animate(time){
     viewport.reset();
     const viewPoint = scale(viewport.getOffset(), -1);
     world.draw(carCtx, viewPoint, false);
-    miniMap.update(viewPoint);
+    // miniMap.update(viewPoint);
 
-    for(let i=0;i<traffic.length;i++){
-        traffic[i].draw(carCtx);
-    }
 
-    networkCtx.lineDashOffset=-time/50;
-    networkCtx.clearRect(0, 0, networkCanvas.width, networkCanvas.height);
-    Visualizer.drawNetwork(networkCtx,bestCar.brain);
     requestAnimationFrame(animate);
 }
+
